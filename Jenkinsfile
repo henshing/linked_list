@@ -20,25 +20,6 @@ pipeline {
     }
 
     stages {
-        stage("初始化QEMU") {
-            steps {
-                script {
-                    // 动态分配 QEMU 端口
-                    QEMU_TCP_PORT = "${40000 + new Random().nextInt(10000)}"
-                    QEMU_UDP_PORT = "${40000 + new Random().nextInt(10000)}"
-                    echo "Assigned TCP Port: ${QEMU_TCP_PORT}"
-                    echo "Assigned UDP Port: ${QEMU_UDP_PORT}"
-                    
-                    sh """
-                    nohup qemu-system-riscv64 -m 2G -smp 1 -machine virt -bios default \\
-                    -kernel /home/jenkins_home/workspace/github_test_sl/${mainRepoName}/apps/monolithic_userboot/monolithic_userboot_riscv64-qemu-virt.bin \\
-                    -device virtio-blk-device,drive=disk0 -drive id=disk0,if=none,format=raw,file=disk.img \\
-                    -device virtio-net-device,netdev=net0 -netdev user,id=net0,hostfwd=tcp::${QEMU_TCP_PORT}-:${QEMU_TCP_PORT},hostfwd=udp::${QEMU_UDP_PORT}-:${QEMU_UDP_PORT} \\
-                    -nographic &
-                    """
-                }
-            }
-        }
         stage("多仓CI") {
             steps {
                 script {
