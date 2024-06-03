@@ -30,14 +30,12 @@ pipeline {
                     echo "Assigned UDP Port: ${QEMU_UDP_PORT}"
                     
                     sh """
-nohup qemu-system-riscv64 -m 2G -smp 1 -machine virt -bios default \\
--kernel /home/jenkins_home/workspace/${JOB_PATH}/${mainRepoName}/apps/monolithic_userboot/monolithic_userboot_riscv64-qemu-virt.bin \\
--device virtio-blk-device,drive=disk0 -drive id=disk0,if=none,format=raw,file=disk.img \\
--device virtio-net-device,netdev=net0 -netdev user,id=net0,hostfwd=tcp::${QEMU_TCP_PORT}-:5555,hostfwd=udp::${QEMU_UDP_PORT}-:5555 \\
--nographic &
-"""
-
-
+                    nohup qemu-system-riscv64 -m 2G -smp 1 -machine virt -bios default \\
+                    -kernel /home/jenkins_home/workspace/${JOB_PATH}/${mainRepoName}/apps/monolithic_userboot/monolithic_userboot_riscv64-qemu-virt.bin \\
+                    -device virtio-blk-device,drive=disk0 -drive id=disk0,if=none,format=raw,file=disk.img \\
+                    -device virtio-net-device,netdev=net0 -netdev user,id=net0,hostfwd=tcp::${QEMU_TCP_PORT}-:5555,hostfwd=udp::${QEMU_UDP_PORT}-:5555 \\
+                    -nographic &
+                    """
                 }
             }
         }
