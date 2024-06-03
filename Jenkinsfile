@@ -33,7 +33,7 @@ pipeline {
                     nohup qemu-system-riscv64 -m 2G -smp 1 -machine virt -bios default \\
                     -kernel /home/jenkins_home/workspace/github_test_sl/${mainRepoName}/apps/monolithic_userboot/monolithic_userboot_riscv64-qemu-virt.bin \\
                     -device virtio-blk-device,drive=disk0 -drive id=disk0,if=none,format=raw,file=disk.img \\
-                    -device virtio-net-device,netdev=net0 -netdev user,id=net0,hostfwd=tcp::${QEMU_TCP_PORT}-:5555,hostfwd=udp::${QEMU_UDP_PORT}-:5555 \\
+                    -device virtio-net-device,netdev=net0 -netdev user,id=net0,hostfwd=tcp::${QEMU_TCP_PORT}-:${QEMU_TCP_PORT},hostfwd=udp::${QEMU_UDP_PORT}-:${QEMU_UDP_PORT} \\
                     -nographic &
                     """
                 }
