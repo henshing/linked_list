@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        // 主仓名///
+        // 主仓名
         mainRepoName = "Starry"
         // 提交仓名
         currentRepoName = "${GIT_URL.substring(GIT_URL.lastIndexOf('/')+1, GIT_URL.length()-4)}"
@@ -11,15 +11,30 @@ pipeline {
         REPORT_PATH = "allure"
         GITHUB_URL_PREFIX = "https://github.com/henshing/"
         GITHUB_URL_SUFFIX = ".git"
-        //根据内置变量currentBuild获取构建号
+        // 根据内置变量currentBuild获取构建号
         buildNumber = "${currentBuild.number}"
         // 构建 Allure 报告地址
         allureReportUrl = "${JENKINS_URL}/${JOB_PATH}/${buildNumber}/${REPORT_PATH}"
-        FROM_EMAIL="bityk@163.com"
-        REPORT_EMAIL="1445323887@qq.com"
+        FROM_EMAIL = "bityk@163.com"
+        REPORT_EMAIL = "1445323887@qq.com"
     }
-    
+
     stages {
+        stage("初始化QEMU") {
+            steps {
+                script {
+                    // 动态分配 QEMU 端口
+                    QEMU_TCP_PORT = "${40000 + new Random().nextInt(10000)}"
+                    QEMU_UDP_PORT = "${40000 + new Random().nextInt(10000)}"
+                    echo "Assigned TCP Port: ${QEMU_TCP_PORT}"
+                    echo "Assigned UDP Port: ${QEMU_UDP_PORT}"
+                    
+                    sh """
+                    nohup qemu-system-riscv64 -m 2G -smp 1 -machine virt -bios default -kernel /home/jenkins_home/workspace/${JOB_PATH}/${mainRepoName}/apps/monolithic_userboot/monolithic_userboot_riscv64-qemu-virt.bin -device virtio-blk-device,drive=disk0 -drive id=disk0,if=none,format=raw,file=disk.img -device virtio-net-device,netdev=net0 -netdev user,id=net0,hostfwd=tcp::${QEMU_TCP_PORT}-:5555,hostfwd=udp::${QEMU_UDP_PORT}-:5555 -nographic &
+                    """
+                }
+            }
+        }
         stage("多仓CI") {
             steps {
                 script {
@@ -28,7 +43,7 @@ pipeline {
                 }
             }
         }
-        stage("合并展示"){
+        stage("合并展示") {
             steps {
                 script {
                     echo "-------------------------allure report generating start---------------------------------------------------"
@@ -41,10 +56,9 @@ pipeline {
     }
 
     post {
-        failure{
-            script{
-                mail subject:"PipeLine '${JOB_NAME}'(${BUILD_NUMBER}) 执行失败",
-                // body:"${currentRepoName}仓CI报告链接：\nPipeline '${JOB_NAME}'(${BUILD_NUMBER}) (${allureReportUrl})"
+        failure {
+            script {
+                mail subject: "PipeLine '${JOB_NAME}'(${BUILD_NUMBER}) 执行失败",
                 body: """
 <div id="content">
 <h1>仓库${currentRepoName} CI报告</h1>
@@ -67,16 +81,15 @@ pipeline {
 </div>
 </div>
                 """,
-        charset: 'utf-8',
-        from: "${FROM_EMAIL}",
-        mimeType: 'text/html',
-		to: "${REPORT_EMAIL}"
+                charset: 'utf-8',
+                from: "${FROM_EMAIL}",
+                mimeType: 'text/html',
+                to: "${REPORT_EMAIL}"
             }
         }
-        success{
-            script{
-                mail subject:"PipeLine '${JOB_NAME}'(${BUILD_NUMBER}) 执行成功",
-                // body:"${currentRepoName}仓CI报告链接：\nPipeline '${JOB_NAME}'(${BUILD_NUMBER}) (${allureReportUrl})"
+        success {
+            script {
+                mail subject: "PipeLine '${JOB_NAME}'(${BUILD_NUMBER}) 执行成功",
                 body: """
 <div id="content">
 <h1>仓库${currentRepoName} CI报告</h1>
@@ -100,54 +113,54 @@ pipeline {
 </div>
 </div>
                 """,
-        charset: 'utf-8',
-        from: "${FROM_EMAIL}",
-        mimeType: 'text/html',
-		to: "${REPORT_EMAIL}"
+                charset: 'utf-8',
+                from: "${FROM_EMAIL}",
+                mimeType: 'text/html',
+                to: "${REPORT_EMAIL}"
             }
         }
     }
 }
 
 def repos() {
-  return ["$currentRepoName", "$mainRepoName"]
+    return ["$currentRepoName", "$mainRepoName"]
 }
 
 def repoJobs() {
-  jobs = [:]
-  repos().each { repo ->
-    jobs[repo] = { 
-        stage(repo + "代码检出"){
-           echo "$repo 代码检出"
-           sh "rm -rf  $repo; git clone $GITHUB_URL_PREFIX$repo$GITHUB_URL_SUFFIX; echo `pwd`;"
-        }
-        stage(repo + "编译测试"){
-            withEnv(["repoName=$repo"]) { // it can override any env variable
-                echo "repoName = ${repoName}"
-                echo "$repo 编译测试"
-                sh 'printenv'
-                sh "cp -r /home/jenkins_home/pytest $WORKSPACE/$repo"
-                echo "--------------------------------------------$repo test start------------------------------------------------"
-                if (repoName == mainRepoName){
-                    sh 'export pywork=$WORKSPACE/${repoName} repoName=${repoName} && cd $pywork/pytest && python3 -m pytest -m mainrepo --cmdrepo=${repoName} -sv --alluredir report/result testcase/test_arceos.py --clean-alluredir'
-                } else {
-                    sh 'export pywork=$WORKSPACE/${repoName} repoName=${repoName} && cd $pywork/pytest && python3 -m pytest -m childrepo --cmdrepo=${repoName} -sv --alluredir report/result testcase/test_arceos.py --clean-alluredir'
-                }
-                echo "--------------------------------------------$repo test end  ------------------------------------------------"
+    jobs = [:]
+    repos().each { repo ->
+        jobs[repo] = {
+            stage(repo + "代码检出") {
+                echo "$repo 代码检出"
+                sh "rm -rf  $repo; git clone $GITHUB_URL_PREFIX$repo$GITHUB_URL_SUFFIX; echo `pwd`;"
             }
-        }
-        stage(repo + "报告生成"){
-            withEnv(["repoName=$repo"]) { // it can override any env variable
-                echo "repoName = ${repoName}"
-                echo "$repo 报告生成"
-                // 输出 Allure 报告地址
-                echo "$repo Allure Report URL: ${allureReportUrl}"
-                echo "-------------------------$repo allure report generating start---------------------------------------------------"
-                sh 'export pywork=$WORKSPACE/${repoName} && cd $pywork/pytest && cp -r ./report $WORKSPACE'
-                echo "-------------------------$repo allure report generating end ----------------------------------------------------"
+            stage(repo + "编译测试") {
+                withEnv(["repoName=$repo"]) { // it can override any env variable
+                    echo "repoName = ${repoName}"
+                    echo "$repo 编译测试"
+                    sh 'printenv'
+                    sh "cp -r /home/jenkins_home/pytest $WORKSPACE/$repo"
+                    echo "--------------------------------------------$repo test start------------------------------------------------"
+                    if (repoName == mainRepoName) {
+                        sh 'export pywork=$WORKSPACE/${repoName} repoName=${repoName} && cd $pywork/pytest && python3 -m pytest -m mainrepo --cmdrepo=${repoName} -sv --alluredir report/result testcase/test_arceos.py --clean-alluredir'
+                    } else {
+                        sh 'export pywork=$WORKSPACE/${repoName} repoName=${repoName} && cd $pywork/pytest && python3 -m pytest -m childrepo --cmdrepo=${repoName} -sv --alluredir report/result testcase/test_arceos.py --clean-alluredir'
+                    }
+                    echo "--------------------------------------------$repo test end  ------------------------------------------------"
+                }
+            }
+            stage(repo + "报告生成") {
+                withEnv(["repoName=$repo"]) { // it can override any env variable
+                    echo "repoName = ${repoName}"
+                    echo "$repo 报告生成"
+                    // 输出 Allure 报告地址
+                    echo "$repo Allure Report URL: ${allureReportUrl}"
+                    echo "-------------------------$repo allure report generating start---------------------------------------------------"
+                    sh 'export pywork=$WORKSPACE/${repoName} && cd $pywork/pytest && cp -r ./report $WORKSPACE'
+                    echo "-------------------------$repo allure report generating end ----------------------------------------------------"
+                }
             }
         }
     }
-  }
-  return jobs
+    return jobs
 }
