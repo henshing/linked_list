@@ -2,7 +2,7 @@ pipeline {
     agent any
     
     environment {
-        // 主仓名//
+        // 主仓名///
         mainRepoName = "Starry"
         // 提交仓名
         currentRepoName = "${GIT_URL.substring(GIT_URL.lastIndexOf('/')+1, GIT_URL.length()-4)}"
