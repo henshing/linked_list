@@ -31,16 +31,16 @@ pipeline {
                 }
             }
         }
-        stage("合并展示") {
-            steps {
-                script {
-                    echo "-------------------------allure report generating start---------------------------------------------------"
-                    sh 'cd $WORKSPACE && allure generate ./report/result -o ./report/html --clean'
-                    allure includeProperties: false, jdk: 'jdk17', report: "report/html", results: [[path: "report/result"]]
-                    echo "-------------------------allure report generating end ----------------------------------------------------"
-                }
-            }
-        } 
+        // stage("合并展示") {
+        //     steps {
+        //         script {
+        //             echo "-------------------------allure report generating start---------------------------------------------------"
+        //             sh 'cd $WORKSPACE && allure generate ./report/result -o ./report/html --clean'
+        //             allure includeProperties: false, jdk: 'jdk17', report: "report/html", results: [[path: "report/result"]]
+        //             echo "-------------------------allure report generating end ----------------------------------------------------"
+        //         }
+        //     }
+        // } 
     }
 
 //     post {
