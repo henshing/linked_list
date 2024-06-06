@@ -6,7 +6,7 @@ pipeline {
         // 提交仓名
         currentRepoName = "${GIT_URL.substring(GIT_URL.lastIndexOf('/')+1, GIT_URL.length()-4)}"
         NODE_BASE_NAME = "ui-node-${GIT_COMMIT.substring(0, 6)}"
-        JENKINS_URL = "http://49.51.192.19:9095"
+        JENKINS_URL = "http://10.1.145.177:8080"
         JOB_PATH = "job/github_test_sl"
         REPORT_PATH = "allure"
         GITHUB_URL_PREFIX = "https://github.com/henshing/"
@@ -40,71 +40,71 @@ pipeline {
         } 
     }
 
-    post {
-        failure {
-            script {
-                mail subject: "PipeLine '${JOB_NAME}'(${BUILD_NUMBER}) 执行失败",
-                body: """
-<div id="content">
-<h1>仓库${currentRepoName} CI报告</h1>
-<div id="sum2">
-  <h2>构建结果</h2>
-  <ul>
-  <li>Job URL : <a href='${BUILD_URL}'>${BUILD_URL}</a></li>
-  <li>执行结果 : <a>执行失败</a></li>
-  <li>Job名称 : <a id="url_1">${JOB_NAME} [${BUILD_NUMBER}]</a></li>
-  <li>项目名称 : <a>${JOB_NAME}</a></li>
-  </ul>
-</div>
-<div id="sum0">
-<h2>GIT 信息</h2>
-<ul>
-<li>GIT项目地址 : <a>${GIT_URL}</a></li>
-<li>GIT项目当前分支名 : ${GIT_BRANCH}</li>
-<li>GIT最后一次提交CommitID : ${GIT_COMMIT}</li>
-</ul>
-</div>
-</div>
-                """,
-                charset: 'utf-8',
-                from: "${FROM_EMAIL}",
-                mimeType: 'text/html',
-                to: "${REPORT_EMAIL}"
-            }
-        }
-        success {
-            script {
-                mail subject: "PipeLine '${JOB_NAME}'(${BUILD_NUMBER}) 执行成功",
-                body: """
-<div id="content">
-<h1>仓库${currentRepoName} CI报告</h1>
-<div id="sum2">
-  <h2>构建结果</h2>
-  <ul>
-  <li>报告URL : <a href='${allureReportUrl}'>${allureReportUrl}</a></li>
-  <li>Job URL : <a href='${BUILD_URL}'>${BUILD_URL}</a></li>
-  <li>执行结果 : <a>执行成功</a></li>
-  <li>Job名称 : <a id="url_1">${JOB_NAME} [${BUILD_NUMBER}]</a></li>
-  <li>项目名称 : <a>${JOB_NAME}</a></li>
-  </ul>
-</div>
-<div id="sum0">
-<h2>GIT 信息</h2>
-<ul>
-<li>GIT项目地址 : <a>${GIT_URL}</a></li>
-<li>GIT项目当前分支名 : ${GIT_BRANCH}</li>
-<li>GIT最后一次提交CommitID : ${GIT_COMMIT}</li>
-</ul>
-</div>
-</div>
-                """,
-                charset: 'utf-8',
-                from: "${FROM_EMAIL}",
-                mimeType: 'text/html',
-                to: "${REPORT_EMAIL}"
-            }
-        }
-    }
+//     post {
+//         failure {
+//             script {
+//                 mail subject: "PipeLine '${JOB_NAME}'(${BUILD_NUMBER}) 执行失败",
+//                 body: """
+// <div id="content">
+// <h1>仓库${currentRepoName} CI报告</h1>
+// <div id="sum2">
+//   <h2>构建结果</h2>
+//   <ul>
+//   <li>Job URL : <a href='${BUILD_URL}'>${BUILD_URL}</a></li>
+//   <li>执行结果 : <a>执行失败</a></li>
+//   <li>Job名称 : <a id="url_1">${JOB_NAME} [${BUILD_NUMBER}]</a></li>
+//   <li>项目名称 : <a>${JOB_NAME}</a></li>
+//   </ul>
+// </div>
+// <div id="sum0">
+// <h2>GIT 信息</h2>
+// <ul>
+// <li>GIT项目地址 : <a>${GIT_URL}</a></li>
+// <li>GIT项目当前分支名 : ${GIT_BRANCH}</li>
+// <li>GIT最后一次提交CommitID : ${GIT_COMMIT}</li>
+// </ul>
+// </div>
+// </div>
+//                 """,
+//                 charset: 'utf-8',
+//                 from: "${FROM_EMAIL}",
+//                 mimeType: 'text/html',
+//                 to: "${REPORT_EMAIL}"
+//             }
+//         }
+//         success {
+//             script {
+//                 mail subject: "PipeLine '${JOB_NAME}'(${BUILD_NUMBER}) 执行成功",
+//                 body: """
+// <div id="content">
+// <h1>仓库${currentRepoName} CI报告</h1>
+// <div id="sum2">
+//   <h2>构建结果</h2>
+//   <ul>
+//   <li>报告URL : <a href='${allureReportUrl}'>${allureReportUrl}</a></li>
+//   <li>Job URL : <a href='${BUILD_URL}'>${BUILD_URL}</a></li>
+//   <li>执行结果 : <a>执行成功</a></li>
+//   <li>Job名称 : <a id="url_1">${JOB_NAME} [${BUILD_NUMBER}]</a></li>
+//   <li>项目名称 : <a>${JOB_NAME}</a></li>
+//   </ul>
+// </div>
+// <div id="sum0">
+// <h2>GIT 信息</h2>
+// <ul>
+// <li>GIT项目地址 : <a>${GIT_URL}</a></li>
+// <li>GIT项目当前分支名 : ${GIT_BRANCH}</li>
+// <li>GIT最后一次提交CommitID : ${GIT_COMMIT}</li>
+// </ul>
+// </div>
+// </div>
+//                 """,
+//                 charset: 'utf-8',
+//                 from: "${FROM_EMAIL}",
+//                 mimeType: 'text/html',
+//                 to: "${REPORT_EMAIL}"
+//             }
+//         }
+//     }
 }
 
 def repos() {
