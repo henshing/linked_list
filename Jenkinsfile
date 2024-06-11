@@ -159,7 +159,9 @@ def repoJobs() {
                 sh "rm -rf  $repo; git clone $GITHUB_URL_PREFIX$repo$GITHUB_URL_SUFFIX; echo `pwd`;"
             }
             stage(repo + "编译测试") {
-                withEnv(["repoName=$repo"]) { // it can override any env variable
+	       script {
+		 catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                    withEnv(["repoName=$repo"]) { // it can override any env variable
                     echo "repoName = ${repoName}"
                     echo "$repo 编译测试"
                     sh 'printenv'
@@ -171,7 +173,9 @@ def repoJobs() {
                         sh 'export pywork=$WORKSPACE/${repoName} repoName=${repoName} && cd $pywork/pytest && python3 -m pytest -m childrepo --cmdrepo=${repoName} -sv --alluredir report/result testcase/test_arceos.py --clean-alluredir'
                     }
                     echo "--------------------------------------------$repo test end  ------------------------------------------------"
-                }
+                   }
+		 }
+               }
             }
             stage(repo + "报告生成") {
                     withEnv(["repoName=$repo"]) { // it can override any env variable
