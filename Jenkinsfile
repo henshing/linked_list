@@ -31,8 +31,10 @@ pipeline {
         stage("多仓CI") {
             steps {
                 script {
-                    sh "rm -rf $WORKSPACE/report"
-                    parallel repoJobs()
+		        catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+	                    sh "rm -rf $WORKSPACE/report"
+	                    parallel repoJobs()
+			       }
                 }
             }
         }
