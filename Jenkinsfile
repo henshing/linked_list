@@ -174,10 +174,7 @@ def repoJobs() {
                 }
             }
             stage(repo + "报告生成") {
-	      steps {
-                script {
-		   catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-	             withEnv(["repoName=$repo"]) { // it can override any env variable
+                    withEnv(["repoName=$repo"]) { // it can override any env variable
                      echo "repoName = ${repoName}"
                      echo "$repo 报告生成"
                      // 输出 Allure 报告地址
@@ -185,10 +182,7 @@ def repoJobs() {
                      echo "-------------------------$repo allure report generating start---------------------------------------------------"
                      sh 'export pywork=$WORKSPACE/${repoName} && cd $pywork/pytest && cp -r ./report $WORKSPACE'
                      echo "-------------------------$repo allure report generating end ----------------------------------------------------"
-                    }  
-		  }
-                }
-              }
+                    }
             }
         }
     }
