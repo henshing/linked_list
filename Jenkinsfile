@@ -185,10 +185,10 @@ def repoJobs() {
                      echo "-------------------------$repo allure report generating start---------------------------------------------------"
                      sh 'export pywork=$WORKSPACE/${repoName} && cd $pywork/pytest && cp -r ./report $WORKSPACE'
                      echo "-------------------------$repo allure report generating end ----------------------------------------------------"
-                         }  
-			}
-                      }
-                    }
+                    }  
+		  }
+                }
+              }
             }
         }
     }
