@@ -33,6 +33,7 @@ pipeline {
                 script {
 		        catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
 	                    sh "rm -rf $WORKSPACE/report"
+			    sh 'git config --global http.postBuffer 524288000'
 	                    parallel repoJobs()
 			       }
                 }
