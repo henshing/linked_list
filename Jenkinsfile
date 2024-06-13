@@ -169,9 +169,9 @@ def repoJobs() {
                     sh "cp -r /home/jenkins_home/pytest $WORKSPACE/$repo"
                     echo "--------------------------------------------$repo test start------------------------------------------------"
                     if (repoName == mainRepoName) {
-                        sh 'export pywork=$WORKSPACE/${repoName} repoName=${repoName} && cd $pywork/pytest && python3 -m pytest -n 4 -m mainrepo --cmdrepo=${repoName} -sv --alluredir report/result testcase/test_arceos.py --clean-alluredir'
+                        sh 'export pywork=$WORKSPACE/${repoName} repoName=${repoName} && cd $pywork/pytest && python3 -m pytest --workers 4 -m mainrepo --cmdrepo=${repoName} -sv --alluredir report/result testcase/test_arceos.py --clean-alluredir'
                     } else {
-                        sh 'export pywork=$WORKSPACE/${repoName} repoName=${repoName} && cd $pywork/pytest && python3 -m pytest -n 4 -m childrepo --cmdrepo=${repoName} -sv --alluredir report/result testcase/test_arceos.py --clean-alluredir'
+                        sh 'export pywork=$WORKSPACE/${repoName} repoName=${repoName} && cd $pywork/pytest && python3 -m pytest --workers 4 -m childrepo --cmdrepo=${repoName} -sv --alluredir report/result testcase/test_arceos.py --clean-alluredir'
                     }
                     echo "--------------------------------------------$repo test end  ------------------------------------------------"
                    }
